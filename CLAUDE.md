@@ -12,7 +12,7 @@ each metadata type goes once authored — do not assume code exists; check befor
 
 - Single default package directory: `force-app` (see `sfdx-project.json`).
 - API version: **66.0**, no namespace, login URL `https://login.salesforce.com`.
-- This is **not a git repository** yet.
+- This **is a git repository**; `origin` is [EKel-Technology-LTD/sdoproject](https://github.com/EKel-Technology-LTD/sdoproject) (public), default branch `main`.
 
 ## Commands
 
