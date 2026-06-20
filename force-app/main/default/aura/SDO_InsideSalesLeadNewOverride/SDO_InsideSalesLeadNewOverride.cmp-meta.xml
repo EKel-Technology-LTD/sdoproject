@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AuraDefinitionBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>Conditional New Lead override that sends inside sales users to the simplified create flow and other users to the standard new page.</description>
+</AuraDefinitionBundle>

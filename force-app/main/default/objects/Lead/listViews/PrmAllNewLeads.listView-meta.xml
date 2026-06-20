@@ -14,7 +14,7 @@
     <filters>
         <field>LEAD.CREATED_DATE</field>
         <operation>greaterOrEqual</operation>
-        <value>Last 1 months</value>
+        <value>LAST_N_MONTHS:1</value>
     </filters>
     <label>Leads Created by Partners This Month</label>
 </ListView>

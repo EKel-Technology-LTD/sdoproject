@@ -11,8 +11,8 @@
             </quickActionLayoutItems>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
-                <field>Email</field>
-                <uiBehavior>Edit</uiBehavior>
+                <field>Company</field>
+                <uiBehavior>Required</uiBehavior>
             </quickActionLayoutItems>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
@@ -21,13 +21,13 @@
             </quickActionLayoutItems>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
-                <field>Company</field>
+                <field>Email</field>
                 <uiBehavior>Edit</uiBehavior>
             </quickActionLayoutItems>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
-                <field>Title</field>
-                <uiBehavior>Edit</uiBehavior>
+                <field>LeadSource</field>
+                <uiBehavior>Required</uiBehavior>
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
         <quickActionLayoutColumns/>

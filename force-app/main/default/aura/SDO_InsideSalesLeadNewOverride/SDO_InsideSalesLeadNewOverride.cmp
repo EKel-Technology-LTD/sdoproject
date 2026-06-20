@@ -1,0 +1,7 @@
+<aura:component implements="lightning:actionOverride,lightning:isUrlAddressable" access="global">
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="showFlow" type="Boolean" default="false"/>
+    <aura:if isTrue="{!v.showFlow}">
+        <lightning:flow aura:id="leadCreateFlow" onstatuschange="{!c.handleStatusChange}"/>
+    </aura:if>
+</aura:component>
