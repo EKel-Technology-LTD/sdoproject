@@ -65,6 +65,10 @@
                 <behavior>Required</behavior>
                 <field>AccountId</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>SDO_Sales_Industry__c</field>
+            </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
     </layoutSections>

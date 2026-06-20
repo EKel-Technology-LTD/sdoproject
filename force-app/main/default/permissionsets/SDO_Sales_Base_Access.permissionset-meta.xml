@@ -27,6 +27,11 @@
     <description>What: Grants access to apps/objects for base Sales Cloud demos. Who: Jesse Chase. When: Sept, 2021.</description>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Opportunity.SDO_Sales_Industry__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Account.CreatedDate__c</field>
         <readable>true</readable>
     </fieldPermissions>

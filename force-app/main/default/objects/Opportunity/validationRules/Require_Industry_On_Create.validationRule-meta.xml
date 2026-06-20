@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Require_Industry_On_Create</fullName>
+    <active>true</active>
+    <errorConditionFormula>ISNEW() &amp;&amp; ISBLANK(TEXT(SDO_Sales_Industry__c))</errorConditionFormula>
+    <errorMessage>請填寫產業。</errorMessage>
+</ValidationRule>
