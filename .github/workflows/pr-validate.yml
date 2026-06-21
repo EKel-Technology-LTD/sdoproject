@@ -49,29 +49,47 @@ jobs:
           mkdir -p deltas
           sf sgd source delta --from "origin/${GITHUB_BASE_REF}" --to HEAD --output-dir deltas --generate-delta --ignore .forceignore
 
-      - name: Validate each package in sfdx-project.json order
+      - name: Validate delta per package (dry-run deploy via manifest, in sfdx-project.json order)
         run: |
           set -o pipefail
           TESTS=$(jq -r '.tests | join(",")' .ci/specified-tests.json 2>/dev/null || echo "")
-          if [ -n "$TESTS" ]; then LEVEL=(--test-level RunSpecifiedTests --tests "$TESTS"); else LEVEL=(--test-level RunLocalTests); fi
-          DESTRUCTIVE_XML="deltas/destructiveChanges/destructiveChanges.xml"
-          for pkg in $(jq -r '.packageDirectories[].path' sfdx-project.json); do
-            if [ ! -d "deltas/$pkg" ]; then echo "↳ $pkg: no delta, skipped"; continue; fi
-            echo "↳ validating $pkg ..."
-            # --post-destructive-changes requires --manifest (NOT --source-dir), and sfdx-git-delta
-            # always emits destructiveChanges.xml even with no deletions — only switch to the
-            # manifest+destructive form when it actually lists members (<types>).
-            if [ -f "$DESTRUCTIVE_XML" ] && grep -q "<types>" "$DESTRUCTIVE_XML"; then
-              cmd=(sf project deploy validate --manifest deltas/package/package.xml --post-destructive-changes "$DESTRUCTIVE_XML" "${LEVEL[@]}")
-            else
-              cmd=(sf project deploy validate --source-dir "deltas/$pkg" "${LEVEL[@]}")
-            fi
-            if ! "${cmd[@]}" --json | tee "result-$pkg.json"; then
-              echo "FAILURE_CLASS=validation" >> "$GITHUB_ENV"
-              echo "FAILED_PKG=$pkg" >> "$GITHUB_ENV"
-              exit 1
-            fi
-          done
+          LEVEL=(--test-level RunLocalTests)
+          [ -n "$TESTS" ] && LEVEL=(--test-level RunSpecifiedTests --tests "$TESTS")
+          # sf project deploy start --dry-run is a validation; --manifest covers the full metadata set
+          # (and is required for --post-destructive-changes).
+          COMMON=(--dry-run --ignore-conflicts --wait 30 "${LEVEL[@]}")
+          DESTRUCTIVE="deltas/destructiveChanges/destructiveChanges.xml"
+          HAS_DESTRUCTIVE=false
+          [ -f "$DESTRUCTIVE" ] && grep -q "<types>" "$DESTRUCTIVE" && HAS_DESTRUCTIVE=true
+          fail() { echo "FAILURE_CLASS=validation" >> "$GITHUB_ENV"; echo "FAILED_PKG=$1" >> "$GITHUB_ENV"; exit 1; }
+
+          validated=false
+          # packageDirectories order in sfdx-project.json IS the deploy sequence — validate each package
+          # in that order (multi-package repos: e.g. base → core → app). One manifest per package.
+          while IFS= read -r pkg; do
+            [ -d "deltas/$pkg" ] || { echo "↳ $pkg: no delta, skipped"; continue; }
+            safe="${pkg//\//_}"
+            echo "↳ $pkg: generate manifest from delta"
+            sf project generate manifest --source-dir "deltas/$pkg" --output-dir "deltas/manifests/$safe" || fail "$pkg (manifest)"
+            echo "# $pkg package.xml"; cat "deltas/manifests/$safe/package.xml"
+            echo "↳ $pkg: validate (dry-run deploy)"
+            sf project deploy start --manifest "deltas/manifests/$safe/package.xml" "${COMMON[@]}" --json | tee "result-$safe.json" || fail "$pkg"
+            validated=true
+          done < <(jq -r '.packageDirectories[].path' sfdx-project.json)
+
+          # Deletions are global (sgd emits one destructiveChanges.xml) → validate once, AFTER all
+          # constructive packages. --post-destructive-changes needs a --manifest, so pass an empty one.
+          if [ "$HAS_DESTRUCTIVE" = true ]; then
+            APIVER=$(jq -r '.sourceApiVersion // empty' sfdx-project.json)
+            [ -z "$APIVER" ] && APIVER=$(grep -oE '[0-9]+\.[0-9]+' deltas/package/package.xml | head -1)
+            [ -z "$APIVER" ] && APIVER=60.0
+            printf '<?xml version="1.0" encoding="UTF-8"?>\n<Package xmlns="http://soap.sforce.com/2006/04/metadata"><version>%s</version></Package>\n' "$APIVER" > deltas/empty-package.xml
+            echo "↳ validate destructive deletions"
+            sf project deploy start --manifest deltas/empty-package.xml --post-destructive-changes "$DESTRUCTIVE" "${COMMON[@]}" --json | tee result-destructive.json || fail destructiveChanges
+            validated=true
+          fi
+
+          [ "$validated" = false ] && echo "No deployable metadata in the delta — nothing to validate."
 
       - name: Release the lease
         if: always() && env.LEASE_ID != ''
