@@ -1,0 +1,104 @@
+name: PR Validate
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+concurrency:
+  group: pr-validate-${{ github.event.number }}
+  cancel-in-progress: true
+
+env:
+  ORCHARD_URL: ${{ secrets.ORCHARD_URL }}        # e.g. https://orchard.<acct>.workers.dev
+  ORCHARD_CI_TOKEN: ${{ secrets.ORCHARD_CI_TOKEN }}
+  CI_POOL_ID: ${{ secrets.CI_POOL_ID }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0                          # delta needs base history
+
+      - name: Install Salesforce CLI + sfdx-git-delta
+        run: |
+          npm install --global @salesforce/cli
+          echo y | sf plugins install sfdx-git-delta
+          sf version
+
+      - name: Lease a CI sandbox from Orchard
+        id: lease
+        run: |
+          resp=$(curl -sS -X POST "$ORCHARD_URL/api/ci/lease" \
+            -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" \
+            -d "{\"poolId\":\"$CI_POOL_ID\",\"holder\":\"gha-pr-${{ github.event.number }}-run-${{ github.run_id }}\",\"ttlSeconds\":3600}")
+          lease_id=$(echo "$resp" | jq -r '.lease.id // empty')
+          auth_url=$(echo "$resp" | jq -r '.org.sfdxAuthUrl // empty')
+          if [ -z "$lease_id" ] || [ -z "$auth_url" ]; then
+            echo "FAILURE_CLASS=infra" >> "$GITHUB_ENV"
+            echo "::error::lease failed: $resp"; exit 1
+          fi
+          echo "LEASE_ID=$lease_id" >> "$GITHUB_ENV"
+          printf '%s' "$auth_url" > /tmp/auth.url
+          sf org login sfdx-url --set-default --sfdx-url-file /tmp/auth.url
+
+      - name: Generate delta (merge-first, post-merge state)
+        run: |
+          git merge "origin/${GITHUB_BASE_REF}" --no-edit || { echo "FAILURE_CLASS=validation" >> "$GITHUB_ENV"; echo "::error::merge conflict with ${GITHUB_BASE_REF}"; exit 1; }
+          mkdir -p deltas
+          sf sgd source delta --from "origin/${GITHUB_BASE_REF}" --to HEAD --output-dir deltas --generate-delta --ignore .forceignore
+
+      - name: Validate each package in sfdx-project.json order
+        run: |
+          set -o pipefail
+          TESTS=$(jq -r '.tests | join(",")' .ci/specified-tests.json 2>/dev/null || echo "")
+          if [ -n "$TESTS" ]; then LEVEL=(--test-level RunSpecifiedTests --tests "$TESTS"); else LEVEL=(--test-level RunLocalTests); fi
+          for pkg in $(jq -r '.packageDirectories[].path' sfdx-project.json); do
+            if [ ! -d "deltas/$pkg" ]; then echo "↳ $pkg: no delta, skipped"; continue; fi
+            echo "↳ validating $pkg ..."
+            destructive=()
+            if [ -s "deltas/destructiveChanges/destructiveChanges.xml" ]; then
+              destructive=(--post-destructive-changes deltas/destructiveChanges/destructiveChanges.xml)
+            fi
+            if ! sf project deploy validate --source-dir "deltas/$pkg" "${LEVEL[@]}" "${destructive[@]}" --json | tee "result-$pkg.json"; then
+              echo "FAILURE_CLASS=validation" >> "$GITHUB_ENV"
+              echo "FAILED_PKG=$pkg" >> "$GITHUB_ENV"
+              exit 1
+            fi
+          done
+
+      - name: Release the lease
+        if: always() && env.LEASE_ID != ''
+        run: |
+          curl -sS -X POST "$ORCHARD_URL/api/ci/leases/$LEASE_ID/release" \
+            -H "authorization: Bearer $ORCHARD_CI_TOKEN" || true
+
+      - name: Report result to Orchard
+        if: always()
+        run: |
+          # Make sure the review cycle exists before posting the result (closes the ensure/results race).
+          curl -sS -X POST "$ORCHARD_URL/api/ci/review-cycles/ensure" \
+            -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" \
+            -d "{\"prUrl\":\"${{ github.event.pull_request.html_url }}\",\"headSha\":\"${{ github.event.pull_request.head.sha }}\"}" || true
+          conclusion=$([ "${{ job.status }}" = "success" ] && echo pass || echo fail)
+          class="${FAILURE_CLASS:-infra}"
+          errors=$(cat result-*.json 2>/dev/null | jq -rs '[.[].result.details.componentFailures[]? | "\(.fullName): \(.problem)"] | join("\n")' 2>/dev/null | head -c 4000)
+          [ -z "$errors" ] && errors="${FAILED_PKG:+package $FAILED_PKG failed}"
+          jq -n --arg pr "${{ github.event.pull_request.html_url }}" --arg sha "${{ github.event.pull_request.head.sha }}" \
+                --arg c "$conclusion" --arg cls "$class" --arg e "$errors" --arg run "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+                '{prUrl:$pr, sha:$sha, conclusion:$c, failureClass:$cls, errors:$e, runUrl:$run}' \
+          | curl -sS -X POST "$ORCHARD_URL/api/ci/results" \
+              -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" -d @-
+
+  request-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure the Orchard review cycle (idempotent)
+        env:
+          ORCHARD_URL: ${{ secrets.ORCHARD_URL }}
+          ORCHARD_CI_TOKEN: ${{ secrets.ORCHARD_CI_TOKEN }}
+        run: |
+          curl -sS -X POST "$ORCHARD_URL/api/ci/review-cycles/ensure" \
+            -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" \
+            -d "{\"prUrl\":\"${{ github.event.pull_request.html_url }}\",\"headSha\":\"${{ github.event.pull_request.head.sha }}\"}"
