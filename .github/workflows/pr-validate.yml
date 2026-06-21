@@ -54,14 +54,19 @@ jobs:
           set -o pipefail
           TESTS=$(jq -r '.tests | join(",")' .ci/specified-tests.json 2>/dev/null || echo "")
           if [ -n "$TESTS" ]; then LEVEL=(--test-level RunSpecifiedTests --tests "$TESTS"); else LEVEL=(--test-level RunLocalTests); fi
+          DESTRUCTIVE_XML="deltas/destructiveChanges/destructiveChanges.xml"
           for pkg in $(jq -r '.packageDirectories[].path' sfdx-project.json); do
             if [ ! -d "deltas/$pkg" ]; then echo "↳ $pkg: no delta, skipped"; continue; fi
             echo "↳ validating $pkg ..."
-            destructive=()
-            if [ -s "deltas/destructiveChanges/destructiveChanges.xml" ]; then
-              destructive=(--post-destructive-changes deltas/destructiveChanges/destructiveChanges.xml)
+            # --post-destructive-changes requires --manifest (NOT --source-dir), and sfdx-git-delta
+            # always emits destructiveChanges.xml even with no deletions — only switch to the
+            # manifest+destructive form when it actually lists members (<types>).
+            if [ -f "$DESTRUCTIVE_XML" ] && grep -q "<types>" "$DESTRUCTIVE_XML"; then
+              cmd=(sf project deploy validate --manifest deltas/package/package.xml --post-destructive-changes "$DESTRUCTIVE_XML" "${LEVEL[@]}")
+            else
+              cmd=(sf project deploy validate --source-dir "deltas/$pkg" "${LEVEL[@]}")
             fi
-            if ! sf project deploy validate --source-dir "deltas/$pkg" "${LEVEL[@]}" "${destructive[@]}" --json | tee "result-$pkg.json"; then
+            if ! "${cmd[@]}" --json | tee "result-$pkg.json"; then
               echo "FAILURE_CLASS=validation" >> "$GITHUB_ENV"
               echo "FAILED_PKG=$pkg" >> "$GITHUB_ENV"
               exit 1
