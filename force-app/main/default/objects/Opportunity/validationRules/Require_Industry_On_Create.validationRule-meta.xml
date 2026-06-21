@@ -3,5 +3,6 @@
     <fullName>Require_Industry_On_Create</fullName>
     <active>true</active>
     <errorConditionFormula>ISNEW() &amp;&amp; ISBLANK(TEXT(SDO_Sales_Industry__c))</errorConditionFormula>
+    <errorDisplayField>SDO_Sales_Industry__c</errorDisplayField>
     <errorMessage>請填寫產業。</errorMessage>
 </ValidationRule>
