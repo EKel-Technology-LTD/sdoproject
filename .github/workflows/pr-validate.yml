@@ -89,7 +89,7 @@ jobs:
             validated=true
           fi
 
-          [ "$validated" = false ] && echo "No deployable metadata in the delta — nothing to validate."
+          if [ "$validated" = false ]; then echo "No deployable metadata in the delta — nothing to validate."; fi
 
       - name: Release the lease
         if: always() && env.LEASE_ID != ''
