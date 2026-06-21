@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -19,254 +19,13 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Account_Industry_Is_Supported</targetReference>
+                <targetReference>Set_Opportunity_Industry</targetReference>
             </connector>
             <label>Has Industry</label>
         </rules>
     </decisions>
-    <decisions>
-        <name>Account_Industry_Is_Supported</name>
-        <label>Account Industry Is Supported</label>
-        <locationX>176</locationX>
-        <locationY>443</locationY>
-        <defaultConnector>
-            <targetReference>Set_Opportunity_Industry_To_Other</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Unsupported Industry</defaultConnectorLabel>
-        <rules>
-            <name>Supported_Industry</name>
-            <conditionLogic>1 OR 2 OR 3 OR 4 OR 5 OR 6 OR 7 OR 8 OR 9 OR 10 OR 11 OR 12 OR 13 OR 14 OR 15 OR 16 OR 17 OR 18 OR 19 OR 20 OR 21 OR 22 OR 23 OR 24 OR 25 OR 26 OR 27 OR 28 OR 29 OR 30 OR 31 OR 32</conditionLogic>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Agriculture</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Apparel</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Banking</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Biotechnology</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Chemicals</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Communications</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Construction</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Consulting</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Education</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Electronics</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Energy</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Engineering</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Entertainment</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Environmental</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Financial Services</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Food &amp; Beverage</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Government</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Healthcare &amp; Life Sciences</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Hospitality</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Insurance</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Machinery</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Manufacturing</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Media</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Not For Profit</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Other</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Recreation</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Retail</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Shipping</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Technology</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Telecommunications</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Transportation</stringValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>Get_Account.Industry</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <stringValue>Utilities</stringValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Set_Opportunity_Industry</targetReference>
-            </connector>
-            <label>Supported Industry</label>
-        </rules>
-    </decisions>
-    <interviewLabel>Default Opportunity Industry From Account {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Default Opportunity Industry From Account {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Default Opportunity Industry From Account</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -292,7 +51,8 @@
         <label>Get Account</label>
         <locationX>176</locationX>
         <locationY>203</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Account_Industry_Found</targetReference>
         </connector>
@@ -317,19 +77,6 @@
             <field>SDO_Sales_Industry__c</field>
             <value>
                 <elementReference>Get_Account.Industry</elementReference>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
-    <recordUpdates>
-        <name>Set_Opportunity_Industry_To_Other</name>
-        <label>Set Opportunity Industry To Other</label>
-        <locationX>308</locationX>
-        <locationY>563</locationY>
-        <inputAssignments>
-            <field>SDO_Sales_Industry__c</field>
-            <value>
-                <stringValue>Other</stringValue>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>
