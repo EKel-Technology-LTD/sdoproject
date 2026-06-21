@@ -73,7 +73,7 @@ jobs:
             sf project generate manifest --source-dir "deltas/$pkg" --output-dir "deltas/manifests/$safe" || fail "$pkg (manifest)"
             echo "# $pkg package.xml"; cat "deltas/manifests/$safe/package.xml"
             echo "↳ $pkg: validate (dry-run deploy)"
-            sf project deploy start --manifest "deltas/manifests/$safe/package.xml" "${COMMON[@]}" --json | tee "result-$safe.json" || fail "$pkg"
+            sf project deploy start --manifest "deltas/manifests/$safe/package.xml" "${COMMON[@]}" --verbose 2>&1 | tee "log-$safe.txt" || fail "$pkg"
             validated=true
           done < <(jq -r '.packageDirectories[].path' sfdx-project.json)
 
@@ -85,7 +85,7 @@ jobs:
             [ -z "$APIVER" ] && APIVER=60.0
             printf '<?xml version="1.0" encoding="UTF-8"?>\n<Package xmlns="http://soap.sforce.com/2006/04/metadata"><version>%s</version></Package>\n' "$APIVER" > deltas/empty-package.xml
             echo "↳ validate destructive deletions"
-            sf project deploy start --manifest deltas/empty-package.xml --post-destructive-changes "$DESTRUCTIVE" "${COMMON[@]}" --json | tee result-destructive.json || fail destructiveChanges
+            sf project deploy start --manifest deltas/empty-package.xml --post-destructive-changes "$DESTRUCTIVE" "${COMMON[@]}" --verbose 2>&1 | tee log-destructive.txt || fail destructiveChanges
             validated=true
           fi
 
@@ -97,6 +97,16 @@ jobs:
           curl -sS -X POST "$ORCHARD_URL/api/ci/leases/$LEASE_ID/release" \
             -H "authorization: Bearer $ORCHARD_CI_TOKEN" || true
 
+      - name: Upload delta + validation logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-delta-pr-${{ github.event.number }}
+          path: |
+            deltas/
+            log-*.txt
+          if-no-files-found: ignore
+
       - name: Report result to Orchard
         if: always()
         run: |
@@ -106,7 +116,7 @@ jobs:
             -d "{\"prUrl\":\"${{ github.event.pull_request.html_url }}\",\"headSha\":\"${{ github.event.pull_request.head.sha }}\"}" || true
           conclusion=$([ "${{ job.status }}" = "success" ] && echo pass || echo fail)
           class="${FAILURE_CLASS:-infra}"
-          errors=$(cat result-*.json 2>/dev/null | jq -rs '[.[].result.details.componentFailures[]? | "\(.fullName): \(.problem)"] | join("\n")' 2>/dev/null | head -c 4000)
+          errors=$(grep -hE '(^| )Error|Component Failures|Test Failures|✖|✗|Failing: [1-9]' log-*.txt 2>/dev/null | head -c 4000)
           [ -z "$errors" ] && errors="${FAILED_PKG:+package $FAILED_PKG failed}"
           jq -n --arg pr "${{ github.event.pull_request.html_url }}" --arg sha "${{ github.event.pull_request.head.sha }}" \
                 --arg c "$conclusion" --arg cls "$class" --arg e "$errors" --arg run "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
