@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SDO_Lead_Default</fullName>
     <active>true</active>
     <businessProcess>Sales Lead</businessProcess>
     <compactLayoutAssignment>Lead_Layout</compactLayoutAssignment>
-    <description>Standard lead qualification and conversion process.</description>
+    <description
+  >Standard lead qualification and conversion process.</description>
     <label>Lead</label>
     <picklistValues>
         <picklist>Industry</picklist>
