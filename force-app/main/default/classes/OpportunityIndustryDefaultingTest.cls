@@ -47,6 +47,31 @@ private class OpportunityIndustryDefaultingTest {
   }
 
   @IsTest
+  static void unsupportedSourceIndustryFallsBackToBlankInsteadOfInvalidPicklistValue() {
+    Set<String> supportedOpportunityIndustries = new Set<String>{
+      'Finance',
+      'Healthcare'
+    };
+
+    System.assertEquals(
+      'Finance',
+      OpportunityIndustryDefaultingHandler.resolveIndustryValue(
+        'Finance',
+        supportedOpportunityIndustries
+      ),
+      'Supported Account.Industry values should map to the same controlled Opportunity value.'
+    );
+    System.assertEquals(
+      null,
+      OpportunityIndustryDefaultingHandler.resolveIndustryValue(
+        'Future Industry',
+        supportedOpportunityIndustries
+      ),
+      'Unsupported Account.Industry values should be left blank so validation or user choice handles them instead of failing restricted picklist DML.'
+    );
+  }
+
+  @IsTest
   static void copiesAccountIndustryOnCreate() {
     Account accountWithIndustry = new Account(
       Name = 'Technology Account',
