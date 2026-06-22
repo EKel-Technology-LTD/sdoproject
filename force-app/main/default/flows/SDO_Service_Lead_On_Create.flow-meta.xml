@@ -47,6 +47,35 @@
             <label>Fire Process Automation = True</label>
         </rules>
     </decisions>
+    <decisions>
+        <name>Skip_Inside_Sales_Default_Lead</name>
+        <label>Skip Inside Sales Default Lead</label>
+        <locationX>254</locationX>
+        <locationY>120</locationY>
+        <defaultConnector>
+            <targetReference>Evaluate_process_automation_settings</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Continue Service Automation</defaultConnectorLabel>
+        <rules>
+            <name>Is_SDO_Default_Partner_Lead</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.RecordType.DeveloperName</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>SDO_Lead_Default</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.LeadSource</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Partner</stringValue>
+                </rightValue>
+            </conditions>
+            <label>Is SDO Default Partner Lead</label>
+        </rules>
+    </decisions>
     <description>Triggers an SMS message to new leads that are created.</description>
     <formulas>
         <name>NumberToUse</name>
@@ -78,7 +107,7 @@
         <locationX>254</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Evaluate_process_automation_settings</targetReference>
+            <targetReference>Skip_Inside_Sales_Default_Lead</targetReference>
         </connector>
         <object>Lead</object>
         <recordTriggerType>Create</recordTriggerType>
