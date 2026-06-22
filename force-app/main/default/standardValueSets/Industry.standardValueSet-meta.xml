@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <sorted>true</sorted>
     <standardValue>
@@ -72,9 +72,9 @@
         <label>Environmental</label>
     </standardValue>
     <standardValue>
-        <fullName>Financial Services</fullName>
+        <fullName>Finance</fullName>
         <default>false</default>
-        <label>Financial Services</label>
+        <label>Finance</label>
     </standardValue>
     <standardValue>
         <fullName>Food &amp; Beverage</fullName>
@@ -87,9 +87,9 @@
         <label>Government</label>
     </standardValue>
     <standardValue>
-        <fullName>Healthcare &amp; Life Sciences</fullName>
+        <fullName>Healthcare</fullName>
         <default>false</default>
-        <label>Healthcare &amp; Life Sciences</label>
+        <label>Healthcare</label>
     </standardValue>
     <standardValue>
         <fullName>Hospitality</fullName>

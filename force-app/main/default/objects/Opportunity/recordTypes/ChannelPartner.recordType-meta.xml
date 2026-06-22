@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ChannelPartner</fullName>
     <active>true</active>
@@ -252,7 +252,7 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Financial Services</fullName>
+            <fullName>Finance</fullName>
             <default>false</default>
         </values>
         <values>
@@ -264,7 +264,7 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Healthcare &amp; Life Sciences</fullName>
+            <fullName>Healthcare</fullName>
             <default>false</default>
         </values>
         <values>
