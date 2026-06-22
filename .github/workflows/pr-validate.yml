@@ -43,9 +43,11 @@ jobs:
           printf '%s' "$auth_url" > /tmp/auth.url
           sf org login sfdx-url --set-default --sfdx-url-file /tmp/auth.url
 
-      - name: Generate delta (merge-first, post-merge state)
+      - name: Generate delta (base → head)
         run: |
-          git merge "origin/${GITHUB_BASE_REF}" --no-edit || { echo "FAILURE_CLASS=validation" >> "$GITHUB_ENV"; echo "::error::merge conflict with ${GITHUB_BASE_REF}"; exit 1; }
+          # No git merge: actions/checkout already provides the PR's merge ref, and validation runs with
+          # `--ignore-conflicts`, so we avoid creating a merge commit (which would need a git identity the
+          # hosted runner lacks → "empty ident name") and avoid hard-failing on a base/branch divergence.
           mkdir -p deltas
           sf sgd source delta --from "origin/${GITHUB_BASE_REF}" --to HEAD --output-dir deltas --generate-delta --ignore .forceignore
 
