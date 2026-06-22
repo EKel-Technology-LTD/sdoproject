@@ -72,7 +72,7 @@
         <label>Environmental</label>
     </standardValue>
     <standardValue>
-        <fullName>Financial Services</fullName>
+        <fullName>Finance</fullName>
         <default>false</default>
         <label>Finance</label>
     </standardValue>
@@ -87,7 +87,7 @@
         <label>Government</label>
     </standardValue>
     <standardValue>
-        <fullName>Healthcare &amp; Life Sciences</fullName>
+        <fullName>Healthcare</fullName>
         <default>false</default>
         <label>Healthcare</label>
     </standardValue>
