@@ -3,7 +3,7 @@
     <fullName>Require_Industry_On_Create</fullName>
     <active>true</active>
     <errorConditionFormula
-  >AND($Permission.SDO_Sales_Opportunity_Industry_Required, ISBLANK(SDO_Sales_Industry__c), OR(ISNEW(), ISCHANGED(SDO_Sales_Industry__c)))</errorConditionFormula>
+  >AND($Permission.SDO_Sales_Opportunity_Industry_Required, ISBLANK(TEXT(SDO_Sales_Industry__c)), OR(ISNEW(), ISCHANGED(SDO_Sales_Industry__c)))</errorConditionFormula>
     <errorDisplayField>SDO_Sales_Industry__c</errorDisplayField>
     <errorMessage>請填寫產業。</errorMessage>
 </ValidationRule>

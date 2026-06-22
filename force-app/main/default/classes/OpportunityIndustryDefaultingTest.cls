@@ -72,11 +72,8 @@ private class OpportunityIndustryDefaultingTest {
   @IsTest
   static void copiesFinanceAndHealthcareValuesFromAccountIndustry() {
     List<Account> accounts = new List<Account>{
-      new Account(Name = 'Finance Account', Industry = 'Financial Services'),
-      new Account(
-        Name = 'Healthcare Account',
-        Industry = 'Healthcare & Life Sciences'
-      )
+      new Account(Name = 'Finance Account', Industry = 'Finance'),
+      new Account(Name = 'Healthcare Account', Industry = 'Healthcare')
     };
     insert accounts;
 
@@ -96,14 +93,14 @@ private class OpportunityIndustryDefaultingTest {
     }
 
     System.assertEquals(
-      'Financial Services',
+      'Finance',
       opportunitiesByName.get('Finance Opportunity').SDO_Sales_Industry__c,
-      'Financial Services must match the Account.Industry API value.'
+      'Finance must match the Account.Industry API value.'
     );
     System.assertEquals(
-      'Healthcare & Life Sciences',
+      'Healthcare',
       opportunitiesByName.get('Healthcare Opportunity').SDO_Sales_Industry__c,
-      'Healthcare & Life Sciences must match the Account.Industry API value.'
+      'Healthcare must match the Account.Industry API value.'
     );
   }
 
@@ -114,9 +111,7 @@ private class OpportunityIndustryDefaultingTest {
       accounts.add(
         new Account(
           Name = 'Bulk Create Account ' + i,
-          Industry = Math.mod(i, 2) == 0
-            ? 'Financial Services'
-            : 'Healthcare & Life Sciences'
+          Industry = Math.mod(i, 2) == 0 ? 'Finance' : 'Healthcare'
         )
       );
     }
@@ -144,9 +139,7 @@ private class OpportunityIndustryDefaultingTest {
 
     for (Integer i = 0; i < opportunities.size(); i++) {
       System.assertEquals(
-        Math.mod(i, 2) == 0
-          ? 'Financial Services'
-          : 'Healthcare & Life Sciences',
+        Math.mod(i, 2) == 0 ? 'Finance' : 'Healthcare',
         opportunitiesByName.get('Bulk Create Opportunity ' + i)
           .SDO_Sales_Industry__c,
         'Bulk create should default industry for row ' +
@@ -163,9 +156,7 @@ private class OpportunityIndustryDefaultingTest {
       accounts.add(
         new Account(
           Name = 'Bulk Update Account ' + i,
-          Industry = Math.mod(i, 2) == 0
-            ? 'Financial Services'
-            : 'Healthcare & Life Sciences'
+          Industry = Math.mod(i, 2) == 0 ? 'Finance' : 'Healthcare'
         )
       );
     }
@@ -196,9 +187,7 @@ private class OpportunityIndustryDefaultingTest {
 
     for (Integer i = 0; i < opportunities.size(); i++) {
       System.assertEquals(
-        Math.mod(i, 2) == 0
-          ? 'Financial Services'
-          : 'Healthcare & Life Sciences',
+        Math.mod(i, 2) == 0 ? 'Finance' : 'Healthcare',
         opportunitiesByName.get('Bulk Update Opportunity ' + i)
           .SDO_Sales_Industry__c,
         'Bulk update should default industry for row ' +
@@ -212,7 +201,7 @@ private class OpportunityIndustryDefaultingTest {
   static void updateDefaultsIndustryWhenAccountIsAddedLater() {
     Account financeAccount = new Account(
       Name = 'Finance Update Account',
-      Industry = 'Financial Services'
+      Industry = 'Finance'
     );
     insert financeAccount;
 
@@ -228,7 +217,7 @@ private class OpportunityIndustryDefaultingTest {
       WHERE Id = :opportunity.Id
     ];
     System.assertEquals(
-      'Financial Services',
+      'Finance',
       updatedOpportunity.SDO_Sales_Industry__c,
       'CreateAndUpdate Flow should backfill industry when AccountId is added later.'
     );
@@ -238,7 +227,7 @@ private class OpportunityIndustryDefaultingTest {
   static void updateRedefaultsIndustryWhenUserClearsBlankableField() {
     Account healthcareAccount = new Account(
       Name = 'Healthcare Clear Field Account',
-      Industry = 'Healthcare & Life Sciences'
+      Industry = 'Healthcare'
     );
     insert healthcareAccount;
 
@@ -258,7 +247,7 @@ private class OpportunityIndustryDefaultingTest {
       WHERE Id = :opportunity.Id
     ];
     System.assertEquals(
-      'Healthcare & Life Sciences',
+      'Healthcare',
       updatedOpportunity.SDO_Sales_Industry__c,
       'Flow should re-default from Account.Industry when the field is cleared on update.'
     );
