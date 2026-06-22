@@ -21,6 +21,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>SDO_Sales_Industry__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Type</field>
             </layoutItems>
             <layoutItems>

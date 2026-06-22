@@ -20,6 +20,11 @@
             </quickActionLayoutItems>
             <quickActionLayoutItems>
                 <emptySpace>false</emptySpace>
+                <field>SDO_Sales_Industry__c</field>
+                <uiBehavior>Edit</uiBehavior>
+            </quickActionLayoutItems>
+            <quickActionLayoutItems>
+                <emptySpace>false</emptySpace>
                 <field>CloseDate</field>
                 <uiBehavior>Required</uiBehavior>
             </quickActionLayoutItems>
