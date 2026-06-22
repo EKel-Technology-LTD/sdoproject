@@ -67,6 +67,9 @@
         <connector>
             <targetReference>Success_Screen</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Lead_Error</targetReference>
+        </faultConnector>
         <inputAssignments>
             <field>Company</field>
             <value>
@@ -187,6 +190,31 @@
             <name>Configuration_Error_Message</name>
             <fieldText
       >&lt;p&gt;Inside Sales Lead creation is not configured. Please contact your Salesforce administrator and ask them to deploy the SDO Lead Default record type.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Create_Lead_Error</name>
+        <label>Lead Not Created</label>
+        <locationX>440</locationX>
+        <locationY>566</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Create_Lead_Error_Message</name>
+            <fieldText
+      >&lt;p&gt;We couldn’t create the Lead. Please review the required inputs and phone/email format, then try again. If the problem continues, contact your Salesforce administrator.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
