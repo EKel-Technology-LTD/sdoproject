@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>66.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
@@ -23,7 +23,8 @@
             <name>Missing_SDO_Lead_Default_Record_Type</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Get_SDO_Lead_Default_Record_Type.Id</leftValueReference>
+                <leftValueReference
+        >Get_SDO_Lead_Default_Record_Type.Id</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -36,7 +37,8 @@
         </rules>
     </decisions>
     <environments>Default</environments>
-    <interviewLabel>Inside Sales Create Lead {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Inside Sales Create Lead {!$Flow.CurrentDateTime}</interviewLabel>
     <label>SDO Inside Sales Create Lead</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -98,13 +100,15 @@
         <inputAssignments>
             <field>RecordTypeId</field>
             <value>
-                <elementReference>Get_SDO_Lead_Default_Record_Type.Id</elementReference>
+                <elementReference
+        >Get_SDO_Lead_Default_Record_Type.Id</elementReference>
             </value>
         </inputAssignments>
         <inputAssignments>
             <field>Status</field>
             <value>
-                <elementReference>Get_Default_Lead_Status.MasterLabel</elementReference>
+                <elementReference
+        >Get_Default_Lead_Status.MasterLabel</elementReference>
             </value>
         </inputAssignments>
         <object>Lead</object>
@@ -115,7 +119,8 @@
         <label>Get Default Lead Status</label>
         <locationX>176</locationX>
         <locationY>242</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Lead_Details</targetReference>
         </connector>
@@ -144,9 +149,11 @@
         <label>Get SDO Lead Default Record Type</label>
         <locationX>176</locationX>
         <locationY>134</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Check_SDO_Lead_Default_Record_Type</targetReference>
+            <targetReference
+      >Check_SDO_Lead_Default_Record_Type</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -178,7 +185,8 @@
         <allowPause>false</allowPause>
         <fields>
             <name>Configuration_Error_Message</name>
-            <fieldText>&lt;p&gt;Inside Sales Lead creation is not configured. Please contact your Salesforce administrator and ask them to deploy the SDO Lead Default record type.&lt;/p&gt;</fieldText>
+            <fieldText
+      >&lt;p&gt;Inside Sales Lead creation is not configured. Please contact your Salesforce administrator and ask them to deploy the SDO Lead Default record type.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
             <styleProperties>
                 <verticalAlignment>
@@ -223,7 +231,8 @@
             <dataType>String</dataType>
             <fieldText>Company</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>B2B 請填真實公司名稱；B2C 或未知公司可填「未提供」。</helpText>
+            <helpText
+      >B2B 請填真實公司名稱；B2C 或未知公司可填「未提供」。</helpText>
             <isRequired>true</isRequired>
             <styleProperties>
                 <verticalAlignment>
@@ -250,7 +259,8 @@
             </styleProperties>
             <validationRule>
                 <errorMessage>Phone 或 Email 至少填一項。</errorMessage>
-                <formulaExpression>NOT(ISBLANK({!Phone})) || NOT(ISBLANK({!Email}))</formulaExpression>
+                <formulaExpression
+        >NOT(ISBLANK({!Phone})) || NOT(ISBLANK({!Email}))</formulaExpression>
             </validationRule>
         </fields>
         <fields>
@@ -269,7 +279,8 @@
             </styleProperties>
             <validationRule>
                 <errorMessage>Phone 或 Email 至少填一項。</errorMessage>
-                <formulaExpression>NOT(ISBLANK({!Phone})) || NOT(ISBLANK({!Email}))</formulaExpression>
+                <formulaExpression
+        >NOT(ISBLANK({!Phone})) || NOT(ISBLANK({!Email}))</formulaExpression>
             </validationRule>
         </fields>
         <fields>

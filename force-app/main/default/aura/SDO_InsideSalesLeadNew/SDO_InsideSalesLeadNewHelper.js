@@ -7,21 +7,51 @@
         response.getState() === "SUCCESS" &&
         response.getReturnValue() === true
       ) {
+        component.set("v.flowStartError", null);
+        component.set("v.flowStartAttempts", 0);
         component.set("v.checkedAccess", true);
-        window.setTimeout(
-          $A.getCallback(function () {
-            var flow = component.find("insideSalesLeadFlow");
-            if (flow) {
-              flow.startFlow("SDO_Inside_Sales_Create_Lead");
-            }
-          }),
-          0
-        );
+        this.startInsideSalesFlow(component);
         return;
       }
       this.navigateToStandardNewLead();
     });
     $A.enqueueAction(action);
+  },
+
+  startInsideSalesFlow: function (component) {
+    var helper = this;
+    var flow;
+    var attempts;
+
+    if (component.get("v.flowStarted")) {
+      return;
+    }
+
+    flow = component.find("insideSalesLeadFlow");
+    if (flow && typeof flow.startFlow === "function") {
+      component.set("v.flowStarted", true);
+      flow.startFlow("SDO_Inside_Sales_Create_Lead");
+      return;
+    }
+
+    attempts = component.get("v.flowStartAttempts") || 0;
+    if (attempts < 5) {
+      component.set("v.flowStartAttempts", attempts + 1);
+      window.setTimeout(
+        $A.getCallback(function () {
+          if (component.isValid()) {
+            helper.startInsideSalesFlow(component);
+          }
+        }),
+        100
+      );
+      return;
+    }
+
+    component.set(
+      "v.flowStartError",
+      "The Inside Sales Lead flow could not be started. Refresh the page and try again, or contact your Salesforce administrator."
+    );
   },
 
   navigateToStandardNewLead: function () {

@@ -1,12 +1,13 @@
+/* eslint-disable no-unused-expressions */
 ({
-    doInit: function (component, event, helper) {
-        helper.routeUser(component);
-    },
+  doInit: function (component, event, helper) {
+    helper.routeUser(component);
+  },
 
-    handleStatusChange: function (component, event, helper) {
-        var status = event.getParam('status');
-        if (status === 'FINISHED' || status === 'FINISHED_SCREEN') {
-            helper.navigateToLeadList();
-        }
+  handleStatusChange: function (component, event, helper) {
+    var status = event.getParam("status");
+    if (status === "FINISHED" || status === "FINISHED_SCREEN") {
+      helper.navigateToLeadList();
     }
+  }
 });
