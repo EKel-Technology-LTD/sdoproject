@@ -1,13 +1,6 @@
 @IsTest
 private class OpportunityIndustryDefaultingTest {
   private static User createUser(String suffix) {
-    Profile standardProfile = [
-      SELECT Id
-      FROM Profile
-      WHERE Name = 'Standard User'
-      LIMIT 1
-    ];
-
     String uniqueName =
       'opp-industry-' +
       suffix +
@@ -21,7 +14,7 @@ private class OpportunityIndustryDefaultingTest {
       LastName = 'Opportunity Industry ' + suffix,
       LanguageLocaleKey = 'en_US',
       LocaleSidKey = 'en_US',
-      ProfileId = standardProfile.Id,
+      ProfileId = UserInfo.getProfileId(),
       TimeZoneSidKey = 'America/Los_Angeles',
       UserName = uniqueName
     );
