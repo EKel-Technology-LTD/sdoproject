@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <fullName>Require_CloseDate_Current_Qtr_When_Won</fullName>
+    <description
+  >Blocks won Opportunities when Close Date is blank or outside the current calendar quarter.</description>
+    <errorConditionFormula>AND(
+    IsWon,
+    OR(
+        ISBLANK(CloseDate),
+        CloseDate &lt; DATE(YEAR(TODAY()), (FLOOR((MONTH(TODAY()) - 1) / 3) * 3) + 1, 1),
+        CloseDate &gt;= ADDMONTHS(DATE(YEAR(TODAY()), (FLOOR((MONTH(TODAY()) - 1) / 3) * 3) + 1, 1), 3)
+    )
+)</errorConditionFormula>
+    <errorDisplayField>CloseDate</errorDisplayField>
+    <errorMessage
+  >成交前必須填寫結案日期，且結案日期必須落在本季內。</errorMessage>
+</ValidationRule>
