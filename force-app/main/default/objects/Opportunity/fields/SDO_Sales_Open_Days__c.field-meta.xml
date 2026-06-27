@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SDO_Sales_Open_Days__c</fullName>
+    <description>Automatically calculates how many weekdays an Opportunity has been open. Open Opportunities count from Created Date to today; closed Opportunities count from Created Date to Close Date.</description>
+    <externalId>false</externalId>
+    <formula>IF(
+  IF(IsClosed, CloseDate, TODAY()) &lt;= DATEVALUE(CreatedDate),
+  0,
+  5 * FLOOR((IF(IsClosed, CloseDate, TODAY()) - DATEVALUE(CreatedDate)) / 7) +
+  IF(
+    MOD((IF(IsClosed, CloseDate, TODAY()) - DATEVALUE(CreatedDate)), 7) &gt;= 1 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 1) &gt;= 2 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 1) &lt;= 6,
+    1,
+    0
+  ) +
+  IF(
+    MOD((IF(IsClosed, CloseDate, TODAY()) - DATEVALUE(CreatedDate)), 7) &gt;= 2 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 2) &gt;= 2 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 2) &lt;= 6,
+    1,
+    0
+  ) +
+  IF(
+    MOD((IF(IsClosed, CloseDate, TODAY()) - DATEVALUE(CreatedDate)), 7) &gt;= 3 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 3) &gt;= 2 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 3) &lt;= 6,
+    1,
+    0
+  ) +
+  IF(
+    MOD((IF(IsClosed, CloseDate, TODAY()) - DATEVALUE(CreatedDate)), 7) &gt;= 4 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 4) &gt;= 2 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 4) &lt;= 6,
+    1,
+    0
+  ) +
+  IF(
+    MOD((IF(IsClosed, CloseDate, TODAY()) - DATEVALUE(CreatedDate)), 7) &gt;= 5 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 5) &gt;= 2 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 5) &lt;= 6,
+    1,
+    0
+  ) +
+  IF(
+    MOD((IF(IsClosed, CloseDate, TODAY()) - DATEVALUE(CreatedDate)), 7) &gt;= 6 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 6) &gt;= 2 &amp;&amp; WEEKDAY(DATEVALUE(CreatedDate) + 6) &lt;= 6,
+    1,
+    0
+  )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>開啟中商機會每日更新；已結案商機固定為建立日至結案日的工作天數（僅排除週六、週日）。</inlineHelpText>
+    <label>已開啟天數</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>
