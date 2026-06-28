@@ -69,12 +69,6 @@
         <name>CustomTab</name>
     </types>
 
-    <!-- Apex verification tests for Sales Cloud behavior -->
-    <types>
-        <members>SDO_Sales_OpenDaysTest</members>
-        <name>ApexClass</name>
-    </types>
-
     <!-- Sales automation -->
     <types>
         <members>*</members>
