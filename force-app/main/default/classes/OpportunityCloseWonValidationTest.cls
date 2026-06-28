@@ -40,7 +40,28 @@ private class OpportunityCloseWonValidationTest {
   @IsTest
   static void historicalWonOpportunityAllowsNonCloseEdit() {
     Opportunity opp = insertOpenOpportunityWithProduct(
-      'Historical won Opportunity',
+      'Won Opportunity maintenance',
+      Date.today(),
+      100
+    );
+    opp.StageName = WON_STAGE;
+    update opp;
+
+    opp.Description = 'Closed Won maintenance update';
+    Database.SaveResult result = Database.update(opp, false);
+
+    System.assertEquals(
+      true,
+      result.isSuccess(),
+      'Closed Won non-CloseDate maintenance updates should not be blocked by current-quarter validation. ' +
+      allErrors(result)
+    );
+  }
+
+  @IsTest
+  static void wonOpportunityCloseDateChangeOutsideCurrentQuarterIsBlocked() {
+    Opportunity opp = insertOpenOpportunityWithProduct(
+      'Won Opportunity CloseDate change',
       Date.today(),
       100
     );
@@ -48,17 +69,14 @@ private class OpportunityCloseWonValidationTest {
     update opp;
 
     opp.CloseDate = outsideCurrentQuarter();
-    update opp;
-
-    opp.Description = 'Historical maintenance update';
     Database.SaveResult result = Database.update(opp, false);
 
     System.assertEquals(
-      true,
+      false,
       result.isSuccess(),
-      'Historical Closed Won maintenance updates should not be blocked by current-quarter validation. ' +
-      allErrors(result)
+      'Closed Won Opportunity CloseDate changes outside the current quarter should be blocked.'
     );
+    assertErrorContains(result, '本季');
   }
 
   @IsTest

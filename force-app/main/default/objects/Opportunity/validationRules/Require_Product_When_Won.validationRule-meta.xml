@@ -2,8 +2,7 @@
 <ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
     <active>true</active>
     <fullName>Require_Product_When_Won</fullName>
-    <description
-  >Requires a product before marking an Opportunity won.</description>
+    <description>Requires a product before marking an Opportunity won.</description>
     <errorConditionFormula>AND(
     IsWon,
     NOT(HasOpportunityLineItem)
