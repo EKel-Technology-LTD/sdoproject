@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <fullName>Require_Amount_When_Won</fullName>
+    <description>Requires Amount before marking an Opportunity won.</description>
+    <errorConditionFormula>AND(
+    IsWon,
+    ISBLANK(Amount)
+)</errorConditionFormula>
+    <errorDisplayField>Amount</errorDisplayField>
+    <errorMessage>成交前必須填寫成交金額。</errorMessage>
+</ValidationRule>
