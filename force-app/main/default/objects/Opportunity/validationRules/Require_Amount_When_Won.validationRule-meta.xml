@@ -3,7 +3,7 @@
     <active>true</active>
     <fullName>Require_Amount_When_Won</fullName>
     <description
-  >Blocks won Opportunities when Amount is blank so closed-won pipeline data remains reportable.</description>
+  >Requires Amount before marking an Opportunity won.</description>
     <errorConditionFormula>AND(
     IsWon,
     ISBLANK(Amount)

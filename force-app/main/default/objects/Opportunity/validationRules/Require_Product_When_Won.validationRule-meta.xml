@@ -3,7 +3,7 @@
     <active>true</active>
     <fullName>Require_Product_When_Won</fullName>
     <description
-  >Blocks won Opportunities until at least one standard Opportunity Product line item exists.</description>
+  >Requires a product before marking an Opportunity won.</description>
     <errorConditionFormula>AND(
     IsWon,
     NOT(HasOpportunityLineItem)

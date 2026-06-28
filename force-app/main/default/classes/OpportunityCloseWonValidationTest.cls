@@ -20,14 +20,14 @@ private class OpportunityCloseWonValidationTest {
 
   @IsTest
   static void wonOpportunityOutsideCurrentQuarterIsBlocked() {
-    Opportunity opp = baseOpportunity(
+    Opportunity opp = insertOpenOpportunityWithProduct(
       'Current quarter required',
       outsideCurrentQuarter(),
       100
     );
     opp.StageName = WON_STAGE;
 
-    Database.SaveResult result = Database.insert(opp, false);
+    Database.SaveResult result = Database.update(opp, false);
 
     System.assertEquals(
       false,
@@ -35,6 +35,30 @@ private class OpportunityCloseWonValidationTest {
       'Won Opportunity outside the current quarter should be blocked.'
     );
     assertErrorContains(result, '本季');
+  }
+
+  @IsTest
+  static void historicalWonOpportunityAllowsNonCloseEdit() {
+    Opportunity opp = insertOpenOpportunityWithProduct(
+      'Historical won Opportunity',
+      Date.today(),
+      100
+    );
+    opp.StageName = WON_STAGE;
+    update opp;
+
+    opp.CloseDate = outsideCurrentQuarter();
+    update opp;
+
+    opp.Description = 'Historical maintenance update';
+    Database.SaveResult result = Database.update(opp, false);
+
+    System.assertEquals(
+      true,
+      result.isSuccess(),
+      'Historical Closed Won maintenance updates should not be blocked by current-quarter validation. ' +
+      allErrors(result)
+    );
   }
 
   @IsTest
@@ -54,30 +78,16 @@ private class OpportunityCloseWonValidationTest {
 
   @IsTest
   static void completeWonOpportunityCanSave() {
-    Account account = new Account(Name = 'SDO Validation Test Account');
-    insert account;
-
-    PricebookEntry entry = createPricebookEntry();
-    Opportunity opp = new Opportunity(
-      Name = 'Complete won Opportunity',
-      AccountId = account.Id,
-      StageName = OPEN_STAGE,
-      CloseDate = Date.today(),
-      Pricebook2Id = Test.getStandardPricebookId()
-    );
-    insert opp;
-
-    insert new OpportunityLineItem(
-      OpportunityId = opp.Id,
-      PricebookEntryId = entry.Id,
-      Quantity = 1,
-      UnitPrice = 100
+    Opportunity opp = insertOpenOpportunityWithProduct(
+      'Complete won Opportunity',
+      Date.today(),
+      100
     );
 
     opp.StageName = WON_STAGE;
     Database.SaveResult result = Database.update(opp, false);
 
-    System.assertEquals(true, result.isSuccess(), firstError(result));
+    System.assertEquals(true, result.isSuccess(), allErrors(result));
   }
 
   @IsTest
@@ -91,7 +101,30 @@ private class OpportunityCloseWonValidationTest {
 
     Database.SaveResult result = Database.insert(opp, false);
 
-    System.assertEquals(true, result.isSuccess(), firstError(result));
+    System.assertEquals(true, result.isSuccess(), allErrors(result));
+  }
+
+  private static Opportunity insertOpenOpportunityWithProduct(
+    String name,
+    Date closeDate,
+    Decimal amount
+  ) {
+    Account account = new Account(Name = name + ' Account');
+    insert account;
+
+    Opportunity opp = baseOpportunity(name, closeDate, amount);
+    opp.AccountId = account.Id;
+    opp.Pricebook2Id = Test.getStandardPricebookId();
+    insert opp;
+
+    insert new OpportunityLineItem(
+      OpportunityId = opp.Id,
+      PricebookEntryId = createPricebookEntry().Id,
+      Quantity = 1,
+      UnitPrice = amount == null ? 100 : amount
+    );
+
+    return opp;
   }
 
   private static Opportunity baseOpportunity(
@@ -136,18 +169,19 @@ private class OpportunityCloseWonValidationTest {
     String expectedText
   ) {
     System.assert(
-      firstError(result).contains(expectedText),
-      'Expected error to contain "' +
+      allErrors(result).contains(expectedText),
+      'Expected one validation error to contain "' +
         expectedText +
         '" but got: ' +
-        firstError(result)
+        allErrors(result)
     );
   }
 
-  private static String firstError(Database.SaveResult result) {
-    if (result.getErrors().isEmpty()) {
-      return '';
+  private static String allErrors(Database.SaveResult result) {
+    List<String> messages = new List<String>();
+    for (Database.Error error : result.getErrors()) {
+      messages.add(error.getMessage());
     }
-    return result.getErrors()[0].getMessage();
+    return String.join(messages, ' | ');
   }
 }
