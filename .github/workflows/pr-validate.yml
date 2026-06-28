@@ -21,11 +21,16 @@ jobs:
         with:
           fetch-depth: 0                          # delta needs base history
 
+      # Pin Node: the npm `sf` runs under PATH node, and runner node 22.23.0 regressed
+      # "unsettled top-level await" -> `sf org login sfdx-url` exit-13s. 22.22.3 is last-known-good
+      # (it + sf 2.139.6 was the last green combo). Bump deliberately after testing a runner node.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+
       - name: Install Salesforce CLI + sfdx-git-delta
         run: |
-          # Pinned: @latest 2.140.6 broke `sf org login sfdx-url` (Node "unsettled top-level
-          # await" -> exit 13). 2.139.6 is last-known-good. Bump deliberately after testing a release.
-          npm install --global @salesforce/cli@2.139.6
+          npm install --global @salesforce/cli@2.139.6     # pinned alongside the node pin above
           echo y | sf plugins install sfdx-git-delta
           sf version
 
