@@ -23,7 +23,9 @@ jobs:
 
       - name: Install Salesforce CLI + sfdx-git-delta
         run: |
-          npm install --global @salesforce/cli
+          # Pinned: @latest 2.140.6 broke `sf org login sfdx-url` (Node "unsettled top-level
+          # await" -> exit 13). 2.139.6 is last-known-good. Bump deliberately after testing a release.
+          npm install --global @salesforce/cli@2.139.6
           echo y | sf plugins install sfdx-git-delta
           sf version
 
