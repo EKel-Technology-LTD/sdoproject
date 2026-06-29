@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SDO_Sales_Open_Days_Alert__c</fullName>
+    <description>Displays a visual warning when the Opportunity has been open for more than 30 weekdays.</description>
+    <externalId>false</externalId>
+    <formula>IF(AND(NOT(IsClosed), SDO_Sales_Open_Days__c &gt; 30), &quot;⚠ 超過 30 工作天&quot;, &quot;&quot;)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>當已開啟天數超過 30 個工作天時顯示警示。</inlineHelpText>
+    <label>開啟天數警示</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

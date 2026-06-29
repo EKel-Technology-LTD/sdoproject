@@ -14,6 +14,8 @@
     <columns>TERR2_NAME</columns>
     <columns>TERR2_DESC</columns>
     <columns>OPPORTUNITY.TYPE</columns>
+    <columns>SDO_Sales_Open_Days__c</columns>
+    <columns>SDO_Sales_Open_Days_Alert__c</columns>
     <filterScope>Mine</filterScope>
     <filters>
         <field>OPPORTUNITY.CLOSE_DATE</field>
