@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>What: Provides read-only access to Opportunities.</description>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.SDO_Sales_Open_Days_Alert__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.SDO_Sales_Open_Days__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Sales - Opportunity ReadOnly Access</label>
     <license>Salesforce</license>
