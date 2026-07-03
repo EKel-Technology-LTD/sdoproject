@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>SDO_Sales_Open_Days_Alert_Message</fullName>
+        <categories>SDO</categories>
+        <language>zh_TW</language>
+        <protected>false</protected>
+        <shortDescription>SDO Sales open days alert message</shortDescription>
+        <value>⚠ 超過 30 工作天</value>
+    </labels>
+</CustomLabels>

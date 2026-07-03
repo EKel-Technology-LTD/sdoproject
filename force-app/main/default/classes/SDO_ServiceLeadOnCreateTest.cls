@@ -40,7 +40,7 @@ private class SDO_ServiceLeadOnCreateTest {
       savedLead.Phone,
       'A phone number is present so non-skipped service automation would have enough input to continue.'
     );
-    assertNoServiceTasks(new Set<Id>{ savedLead.Id });
+    assertNoSmsDispatchArtifacts(new Set<String>{ savedLead.Phone });
   }
 
   @IsTest
@@ -77,7 +77,11 @@ private class SDO_ServiceLeadOnCreateTest {
       insertedCount,
       'The skip branch must support bulk Lead imports for all default Partner Leads.'
     );
-    assertNoServiceTasks(leadIds);
+    Set<String> phoneNumbers = new Set<String>();
+    for (Lead insertedLead : leadsToInsert) {
+      phoneNumbers.add(insertedLead.Phone);
+    }
+    assertNoSmsDispatchArtifacts(phoneNumbers);
   }
 
   private static RecordType getDefaultLeadRecordType() {
@@ -125,15 +129,28 @@ private class SDO_ServiceLeadOnCreateTest {
     upsert automationSwitch;
   }
 
-  private static void assertNoServiceTasks(Set<Id> leadIds) {
+  private static void assertNoSmsDispatchArtifacts(Set<String> phoneNumbers) {
+    Schema.SObjectType messagingEndUserType = Schema.getGlobalDescribe()
+      .get('MessagingEndUser');
+    System.assertNotEquals(
+      null,
+      messagingEndUserType,
+      'The SDO SMS service automation path must be observable through MessagingEndUser records.'
+    );
+    System.assert(
+      messagingEndUserType.getDescribe()
+        .fields.getMap()
+        .containsKey('MessagingPlatformKey'),
+      'MessagingEndUser.MessagingPlatformKey must be queryable to verify SMS dispatch artifacts.'
+    );
+
+    Integer messagingEndUsers = Database.countQuery(
+      'SELECT COUNT() FROM MessagingEndUser WHERE MessagingPlatformKey IN :phoneNumbers'
+    );
     System.assertEquals(
       0,
-      [
-        SELECT COUNT()
-        FROM Task
-        WHERE WhoId IN :leadIds
-      ],
-      'Default Partner Leads should skip downstream service automation and must not enqueue Lead follow-up Tasks.'
+      messagingEndUsers,
+      'Default Partner Leads should skip the SMS service automation path and must not create SMS MessagingEndUser artifacts for their phone numbers.'
     );
   }
 }
