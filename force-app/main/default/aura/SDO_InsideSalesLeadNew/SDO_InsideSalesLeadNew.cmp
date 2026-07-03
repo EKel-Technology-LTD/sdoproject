@@ -1,0 +1,32 @@
+<aura:component
+  controller="SDO_LeadCreateAccessCtrl"
+  implements="lightning:actionOverride,flexipage:availableForAllPageTypes"
+  access="global"
+>
+  <aura:attribute name="checkedAccess" type="Boolean" default="false" />
+  <aura:attribute name="flowStarted" type="Boolean" default="false" />
+  <aura:attribute name="flowStartAttempts" type="Integer" default="0" />
+  <aura:attribute name="flowStartError" type="String" />
+  <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+  <div class="{!if(v.checkedAccess, '', 'slds-hide')}">
+    <lightning:card title="New Lead">
+      <lightning:flow
+        aura:id="insideSalesLeadFlow"
+        onstatuschange="{!c.handleStatusChange}"
+      />
+    </lightning:card>
+  </div>
+
+  <aura:if isTrue="{!not(v.checkedAccess)}">
+    <lightning:spinner alternativeText="Loading" size="medium" />
+  </aura:if>
+
+  <aura:if isTrue="{!not(empty(v.flowStartError))}">
+    <lightning:card title="New Lead">
+      <div class="slds-p-around_medium">
+        <div class="slds-text-color_error">{!v.flowStartError}</div>
+      </div>
+    </lightning:card>
+  </aura:if>
+</aura:component>

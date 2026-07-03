@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ORCHARD_URL: ${{ secrets.ORCHARD_URL }}        # e.g. https://orchard.<acct>.workers.dev
+  ORCHARD_URL: ${{ secrets.ORCHARD_URL }} # e.g. https://orchard.<acct>.workers.dev
   ORCHARD_CI_TOKEN: ${{ secrets.ORCHARD_CI_TOKEN }}
   CI_POOL_ID: ${{ secrets.CI_POOL_ID }}
 
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0                          # delta needs base history
+          fetch-depth: 0 # delta needs base history
 
       # Pin Node: the npm `sf` runs under PATH node, and runner node 22.23.0 regressed
       # "unsettled top-level await" -> `sf org login sfdx-url` exit-13s. 22.22.3 is last-known-good

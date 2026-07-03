@@ -1,1 +1,1 @@
-{ "tests": [] }
+{ "tests": ["SDO_LeadCreateAccessCtrlTest", "SDO_ServiceLeadOnCreateTest"] }
