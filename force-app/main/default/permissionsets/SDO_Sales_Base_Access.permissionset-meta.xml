@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <applicationVisibilities>
         <application>SDO_Sales_App</application>
@@ -24,7 +24,8 @@
         <apexClass>SDO_Tool_Utility_LookupCtrl</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <description>What: Grants access to apps/objects for base Sales Cloud demos. Who: Jesse Chase. When: Sept, 2021.</description>
+    <description
+  >What: Grants access to apps/objects for base Sales Cloud demos. Who: Jesse Chase. When: Sept, 2021.</description>
     <fieldPermissions>
         <editable>true</editable>
         <field>Account.CreatedDate__c</field>
@@ -258,6 +259,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Opportunity.SDO_Sales_Discount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.SDO_Sales_Open_Days_Alert__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Opportunity.SDO_Sales_Open_Days__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
