@@ -1,6 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>54.0</apiVersion>
+    <actionCalls>
+        <name>Record_Service_Dispatch_Attempt</name>
+        <label>Record Service Dispatch Attempt</label>
+        <locationX>50</locationX>
+        <locationY>575</locationY>
+        <actionName>SDO_ServiceLeadDispatchProbe</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Send_Welcome_Message</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>contextRecordId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>recipientPhone</name>
+            <value>
+                <elementReference>NumberToUse</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SDO_ServiceLeadDispatchProbe</nameSegment>
+    </actionCalls>
+
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <decisions>
         <name>Check_Number</name>
@@ -19,7 +45,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Send_Welcome_Message</targetReference>
+                <targetReference>Record_Service_Dispatch_Attempt</targetReference>
             </connector>
             <label>Phone Number Set</label>
         </rules>
@@ -118,7 +144,7 @@
         <name>Send_Welcome_Message</name>
         <label>Send Welcome Message</label>
         <locationX>50</locationX>
-        <locationY>575</locationY>
+        <locationY>695</locationY>
         <flowName>SDO_Service_Send_Message</flowName>
         <inputAssignments>
             <name>ContextRecordId</name>

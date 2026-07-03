@@ -2,6 +2,7 @@
 private class SDO_ServiceLeadOnCreateTest {
   private static final String DEFAULT_RECORD_TYPE = 'SDO_Lead_Default';
   private static final String INSIDE_SALES_SOURCE = 'Partner';
+  private static final String CONTROL_SOURCE = 'Web';
 
   @IsTest
   static void defaultPartnerLeadSkipsServiceAutomation() {
@@ -10,9 +11,11 @@ private class SDO_ServiceLeadOnCreateTest {
     String openDefaultStatus = getOpenDefaultStatus();
 
     Test.startTest();
-    Lead insideSalesLead = buildDefaultPartnerLead(
+    SDO_ServiceLeadDispatchProbe.reset();
+    Lead insideSalesLead = buildLead(
       'Inside Sales Partner',
       'EKel Test Company',
+      INSIDE_SALES_SOURCE,
       '4155550100',
       defaultRecordType.Id,
       openDefaultStatus
@@ -40,7 +43,33 @@ private class SDO_ServiceLeadOnCreateTest {
       savedLead.Phone,
       'A phone number is present so non-skipped service automation would have enough input to continue.'
     );
-    assertNoSmsDispatchArtifacts(new Set<String>{ savedLead.Phone });
+    assertNoServiceDispatchAttempts();
+  }
+
+  @IsTest
+  static void nonPartnerDefaultLeadReachesServiceDispatchControl() {
+    enableServiceAutomation();
+    RecordType defaultRecordType = getDefaultLeadRecordType();
+    String openDefaultStatus = getOpenDefaultStatus();
+
+    Test.startTest();
+    SDO_ServiceLeadDispatchProbe.reset();
+    Lead controlLead = buildLead(
+      'Service Control',
+      'EKel Control Company',
+      CONTROL_SOURCE,
+      '4155550199',
+      defaultRecordType.Id,
+      openDefaultStatus
+    );
+    insert controlLead;
+    Test.stopTest();
+
+    assertServiceDispatchAttempts(
+      1,
+      new Set<Id>{ controlLead.Id },
+      new Set<String>{ controlLead.Phone }
+    );
   }
 
   @IsTest
@@ -52,9 +81,10 @@ private class SDO_ServiceLeadOnCreateTest {
 
     for (Integer i = 0; i < 200; i++) {
       leadsToInsert.add(
-        buildDefaultPartnerLead(
+        buildLead(
           'Bulk Partner ' + i,
           'EKel Bulk Company ' + i,
+          INSIDE_SALES_SOURCE,
           '415555' + String.valueOf(1000 + i),
           defaultRecordType.Id,
           openDefaultStatus
@@ -63,6 +93,7 @@ private class SDO_ServiceLeadOnCreateTest {
     }
 
     Test.startTest();
+    SDO_ServiceLeadDispatchProbe.reset();
     insert leadsToInsert;
     Test.stopTest();
 
@@ -77,11 +108,7 @@ private class SDO_ServiceLeadOnCreateTest {
       insertedCount,
       'The skip branch must support bulk Lead imports for all default Partner Leads.'
     );
-    Set<String> phoneNumbers = new Set<String>();
-    for (Lead insertedLead : leadsToInsert) {
-      phoneNumbers.add(insertedLead.Phone);
-    }
-    assertNoSmsDispatchArtifacts(phoneNumbers);
+    assertNoServiceDispatchAttempts();
   }
 
   private static RecordType getDefaultLeadRecordType() {
@@ -103,9 +130,10 @@ private class SDO_ServiceLeadOnCreateTest {
     .MasterLabel;
   }
 
-  private static Lead buildDefaultPartnerLead(
+  private static Lead buildLead(
     String lastName,
     String company,
+    String leadSource,
     String phone,
     Id recordTypeId,
     String status
@@ -113,7 +141,7 @@ private class SDO_ServiceLeadOnCreateTest {
     return new Lead(
       LastName = lastName,
       Company = company,
-      LeadSource = INSIDE_SALES_SOURCE,
+      LeadSource = leadSource,
       Phone = phone,
       RecordTypeId = recordTypeId,
       Status = status
@@ -129,28 +157,43 @@ private class SDO_ServiceLeadOnCreateTest {
     upsert automationSwitch;
   }
 
-  private static void assertNoSmsDispatchArtifacts(Set<String> phoneNumbers) {
-    Schema.SObjectType messagingEndUserType = Schema.getGlobalDescribe()
-      .get('MessagingEndUser');
-    System.assertNotEquals(
-      null,
-      messagingEndUserType,
-      'The SDO SMS service automation path must be observable through MessagingEndUser records.'
-    );
-    System.assert(
-      messagingEndUserType.getDescribe()
-        .fields.getMap()
-        .containsKey('MessagingPlatformKey'),
-      'MessagingEndUser.MessagingPlatformKey must be queryable to verify SMS dispatch artifacts.'
-    );
-
-    Integer messagingEndUsers = Database.countQuery(
-      'SELECT COUNT() FROM MessagingEndUser WHERE MessagingPlatformKey IN :phoneNumbers'
+  private static void assertNoServiceDispatchAttempts() {
+    System.assertEquals(
+      0,
+      SDO_ServiceLeadDispatchProbe.dispatchAttemptCount,
+      'Default Partner Leads must exit through Skip_Inside_Sales_Default_Lead before the SMS/service dispatch point.'
     );
     System.assertEquals(
       0,
-      messagingEndUsers,
-      'Default Partner Leads should skip the SMS service automation path and must not create SMS MessagingEndUser artifacts for their phone numbers.'
+      SDO_ServiceLeadDispatchProbe.contextRecordIds.size(),
+      'Skipped default Partner Leads must not reach the service dispatch probe.'
+    );
+    System.assertEquals(
+      0,
+      SDO_ServiceLeadDispatchProbe.recipientPhones.size(),
+      'Skipped default Partner Leads must not provide phone numbers to the SMS/service dispatch path.'
+    );
+  }
+
+  private static void assertServiceDispatchAttempts(
+    Integer expectedAttempts,
+    Set<Id> expectedLeadIds,
+    Set<String> expectedPhones
+  ) {
+    System.assertEquals(
+      expectedAttempts,
+      SDO_ServiceLeadDispatchProbe.dispatchAttemptCount,
+      'The positive-control Lead must prove that non-skipped records reach the SMS/service dispatch branch.'
+    );
+    System.assertEquals(
+      expectedLeadIds,
+      SDO_ServiceLeadDispatchProbe.contextRecordIds,
+      'The dispatch probe should receive the non-skipped Lead Id from the same Flow branch.'
+    );
+    System.assertEquals(
+      expectedPhones,
+      SDO_ServiceLeadDispatchProbe.recipientPhones,
+      'The dispatch probe should receive the phone number that would be passed to SMS dispatch.'
     );
   }
 }
