@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Single assignment group for onboarding Business Development team members with the least-privilege BD access permission set.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>BD Team Access Group</label>
+    <permissionSets>SDO_BD_Team_Access</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>
