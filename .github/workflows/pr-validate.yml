@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ORCHARD_URL: ${{ secrets.ORCHARD_URL }}        # e.g. https://orchard.<acct>.workers.dev
+  ORCHARD_URL: ${{ secrets.ORCHARD_URL }} # e.g. https://orchard.<acct>.workers.dev
   ORCHARD_CI_TOKEN: ${{ secrets.ORCHARD_CI_TOKEN }}
   CI_POOL_ID: ${{ secrets.CI_POOL_ID }}
 
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0                          # delta needs base history
+          fetch-depth: 0 # delta needs base history
 
       # Pin Node: the npm `sf` runs under PATH node, and runner node 22.23.0 regressed
       # "unsettled top-level await" -> `sf org login sfdx-url` exit-13s. 22.22.3 is last-known-good
@@ -51,7 +51,13 @@ jobs:
           fi
           echo "LEASE_ID=$lease_id" >> "$GITHUB_ENV"
           printf '%s' "$auth_url" > /tmp/auth.url
-          sf org login sfdx-url --set-default --sfdx-url-file /tmp/auth.url
+          login_json=$(sf org login sfdx-url --json --sfdx-url-file /tmp/auth.url)
+          target_org=$(echo "$login_json" | jq -r '.result.username // .result.authFields.username // empty')
+          if [ -z "$target_org" ]; then
+            echo "FAILURE_CLASS=infra" >> "$GITHUB_ENV"
+            echo "::error::Salesforce login succeeded but username was not returned"; exit 1
+          fi
+          echo "TARGET_ORG=$target_org" >> "$GITHUB_ENV"
 
       - name: Generate delta (base → head)
         run: |
@@ -69,7 +75,7 @@ jobs:
           [ -n "$TESTS" ] && LEVEL=(--test-level RunSpecifiedTests --tests "$TESTS")
           # sf project deploy start --dry-run is a validation; --manifest covers the full metadata set
           # (and is required for --post-destructive-changes).
-          COMMON=(--dry-run --ignore-conflicts --wait 30 "${LEVEL[@]}")
+          COMMON=(--dry-run --ignore-conflicts --wait 30 --target-org "$TARGET_ORG" "${LEVEL[@]}")
           DESTRUCTIVE="deltas/destructiveChanges/destructiveChanges.xml"
           HAS_DESTRUCTIVE=false
           [ -f "$DESTRUCTIVE" ] && grep -q "<types>" "$DESTRUCTIVE" && HAS_DESTRUCTIVE=true
