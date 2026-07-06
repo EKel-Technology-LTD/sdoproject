@@ -37,7 +37,10 @@ jobs:
       - name: Lease a CI sandbox from Orchard
         id: lease
         run: |
-          resp=$(curl -sS --retry 5 --retry-all-errors --retry-connrefused --retry-delay 3 --max-time 90 -X POST "$ORCHARD_URL/api/ci/lease" \
+          # Deliberately NO --retry on the lease POST: it creates a resource. The endpoint is
+          # holder-idempotent (a repeat with the same holder returns the same lease), but we don't
+          # lean on that for a create call — a blip here just fails the run cleanly ('infra' class).
+          resp=$(curl -sS -X POST "$ORCHARD_URL/api/ci/lease" \
             -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" \
             -d "{\"poolId\":\"$CI_POOL_ID\",\"holder\":\"gha-pr-${{ github.event.number }}-run-${{ github.run_id }}\",\"ttlSeconds\":3600}")
           lease_id=$(echo "$resp" | jq -r '.lease.id // empty')
