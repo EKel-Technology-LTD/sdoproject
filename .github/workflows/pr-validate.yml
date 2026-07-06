@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ORCHARD_URL: ${{ secrets.ORCHARD_URL }}        # e.g. https://orchard.<acct>.workers.dev
+  ORCHARD_URL: ${{ secrets.ORCHARD_URL }} # e.g. https://orchard.<acct>.workers.dev
   ORCHARD_CI_TOKEN: ${{ secrets.ORCHARD_CI_TOKEN }}
   CI_POOL_ID: ${{ secrets.CI_POOL_ID }}
 
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0                          # delta needs base history
+          fetch-depth: 0 # delta needs base history
 
       # Pin Node: the npm `sf` runs under PATH node, and runner node 22.23.0 regressed
       # "unsettled top-level await" -> `sf org login sfdx-url` exit-13s. 22.22.3 is last-known-good
@@ -37,6 +37,9 @@ jobs:
       - name: Lease a CI sandbox from Orchard
         id: lease
         run: |
+          # Deliberately NO --retry on the lease POST: it creates a resource. The endpoint is
+          # holder-idempotent (a repeat with the same holder returns the same lease), but we don't
+          # lean on that for a create call — a blip here just fails the run cleanly ('infra' class).
           resp=$(curl -sS -X POST "$ORCHARD_URL/api/ci/lease" \
             -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" \
             -d "{\"poolId\":\"$CI_POOL_ID\",\"holder\":\"gha-pr-${{ github.event.number }}-run-${{ github.run_id }}\",\"ttlSeconds\":3600}")
@@ -48,7 +51,13 @@ jobs:
           fi
           echo "LEASE_ID=$lease_id" >> "$GITHUB_ENV"
           printf '%s' "$auth_url" > /tmp/auth.url
-          sf org login sfdx-url --set-default --sfdx-url-file /tmp/auth.url
+          login_json=$(sf org login sfdx-url --json --sfdx-url-file /tmp/auth.url)
+          target_org=$(echo "$login_json" | jq -r '.result.username // .result.authFields.username // empty')
+          if [ -z "$target_org" ]; then
+            echo "FAILURE_CLASS=infra" >> "$GITHUB_ENV"
+            echo "::error::Salesforce login succeeded but username was not returned"; exit 1
+          fi
+          echo "TARGET_ORG=$target_org" >> "$GITHUB_ENV"
 
       - name: Generate delta (base → head)
         run: |
@@ -66,7 +75,7 @@ jobs:
           [ -n "$TESTS" ] && LEVEL=(--test-level RunSpecifiedTests --tests "$TESTS")
           # sf project deploy start --dry-run is a validation; --manifest covers the full metadata set
           # (and is required for --post-destructive-changes).
-          COMMON=(--dry-run --ignore-conflicts --wait 30 "${LEVEL[@]}")
+          COMMON=(--dry-run --ignore-conflicts --wait 30 --target-org "$TARGET_ORG" "${LEVEL[@]}")
           DESTRUCTIVE="deltas/destructiveChanges/destructiveChanges.xml"
           HAS_DESTRUCTIVE=false
           [ -f "$DESTRUCTIVE" ] && grep -q "<types>" "$DESTRUCTIVE" && HAS_DESTRUCTIVE=true
@@ -103,7 +112,7 @@ jobs:
       - name: Release the lease
         if: always() && env.LEASE_ID != ''
         run: |
-          curl -sS -X POST "$ORCHARD_URL/api/ci/leases/$LEASE_ID/release" \
+          curl -sS --retry 5 --retry-all-errors --retry-connrefused --retry-delay 3 --max-time 90 -X POST "$ORCHARD_URL/api/ci/leases/$LEASE_ID/release" \
             -H "authorization: Bearer $ORCHARD_CI_TOKEN" || true
 
       - name: Upload delta + validation logs
@@ -120,7 +129,7 @@ jobs:
         if: always()
         run: |
           # Make sure the review cycle exists before posting the result (closes the ensure/results race).
-          curl -sS -X POST "$ORCHARD_URL/api/ci/review-cycles/ensure" \
+          curl -sS --retry 5 --retry-all-errors --retry-connrefused --retry-delay 3 --max-time 90 -X POST "$ORCHARD_URL/api/ci/review-cycles/ensure" \
             -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" \
             -d "{\"prUrl\":\"${{ github.event.pull_request.html_url }}\",\"headSha\":\"${{ github.event.pull_request.head.sha }}\"}" || true
           conclusion=$([ "${{ job.status }}" = "success" ] && echo pass || echo fail)
@@ -130,7 +139,7 @@ jobs:
           jq -n --arg pr "${{ github.event.pull_request.html_url }}" --arg sha "${{ github.event.pull_request.head.sha }}" \
                 --arg c "$conclusion" --arg cls "$class" --arg e "$errors" --arg run "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
                 '{prUrl:$pr, sha:$sha, conclusion:$c, failureClass:$cls, errors:$e, runUrl:$run}' \
-          | curl -sS -X POST "$ORCHARD_URL/api/ci/results" \
+          | curl -sS --retry 5 --retry-all-errors --retry-connrefused --retry-delay 3 --max-time 90 -X POST "$ORCHARD_URL/api/ci/results" \
               -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" -d @-
 
   request-review:
@@ -141,6 +150,6 @@ jobs:
           ORCHARD_URL: ${{ secrets.ORCHARD_URL }}
           ORCHARD_CI_TOKEN: ${{ secrets.ORCHARD_CI_TOKEN }}
         run: |
-          curl -sS -X POST "$ORCHARD_URL/api/ci/review-cycles/ensure" \
+          curl -sS --retry 5 --retry-all-errors --retry-connrefused --retry-delay 3 --max-time 90 -X POST "$ORCHARD_URL/api/ci/review-cycles/ensure" \
             -H "authorization: Bearer $ORCHARD_CI_TOKEN" -H "content-type: application/json" \
             -d "{\"prUrl\":\"${{ github.event.pull_request.html_url }}\",\"headSha\":\"${{ github.event.pull_request.head.sha }}\"}"
